@@ -13,7 +13,7 @@ func main() {
 	r := os.Stdin
 	w := os.Stdout
 
-    flag.Parse()
+	flag.Parse()
 
 	if flag.NArg() > 2 {
 		usage()
@@ -48,7 +48,7 @@ func main() {
 	for scanner.Scan() {
 		thisLine = scanner.Text()
 		if prevLine != thisLine {
-            fmt.Fprintln(w, prevLine)
+			fmt.Fprintln(w, prevLine)
 			prevLine = thisLine
 		}
 	}
@@ -56,7 +56,7 @@ func main() {
 		panic(err)
 	}
 	if len(prevLine) != 0 {
-        fmt.Fprintln(w, prevLine)
+		fmt.Fprintln(w, prevLine)
 	}
 }
 
