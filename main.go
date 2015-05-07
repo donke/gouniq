@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
+	"io"
 	"os"
 )
 
@@ -14,6 +15,8 @@ func main() {
 	w := os.Stdout
 
 	c := flag.Bool("c", false, "print a number that how many times they occurred.")
+	d := flag.Bool("d", false, "only print duplicated lines.")
+	u := flag.Bool("u", false, "only print unique lines.")
 
 	flag.Parse()
 
@@ -37,6 +40,15 @@ func main() {
 		defer r.Close()
 	}
 
+	if *c {
+		if *d || *u {
+			usage()
+		}
+	} else if !*d && !*u {
+		*d = true
+		*u = true
+	}
+
 	var prevLine string
 	var thisLine string
 	var repeats int
@@ -47,19 +59,22 @@ func main() {
 		if err = scanner.Err(); err != nil {
 			panic(err)
 		}
+	} else {
+		os.Exit(0)
 	}
-	if !*c {
-		fmt.Fprintln(w, prevLine)
+
+	if !*c && *d && *u {
+		show(w, prevLine, *c, *d, *u, repeats)
 	}
 	for scanner.Scan() {
 		thisLine = scanner.Text()
 		if prevLine != thisLine {
-			if *c {
-				fmt.Fprintf(w, "%4d %s\n", repeats+1, prevLine)
+			if *c || !*d || !*u {
+				show(w, prevLine, *c, *d, *u, repeats)
 			}
 			prevLine = thisLine
-			if !*c {
-				fmt.Fprintln(w, prevLine)
+			if !*c && *d && *u {
+				show(w, prevLine, *c, *d, *u, repeats)
 			}
 			repeats = 0
 		} else {
@@ -69,14 +84,21 @@ func main() {
 	if err := scanner.Err(); err != nil {
 		panic(err)
 	}
-	if len(prevLine) != 0 {
-		if *c {
-			fmt.Fprintf(w, "%4d %s\n", repeats+1, prevLine)
-		}
+	if *c || !*d || !*u {
+		show(w, prevLine, *c, *d, *u, repeats)
+	}
+}
+
+func show(w io.Writer, s string, c bool, d bool, u bool, repeats int) {
+	if c {
+		fmt.Fprintf(w, "%4d %s\n", repeats+1, s)
+	}
+	if (d && repeats != 0) || (u && repeats == 0) {
+		fmt.Fprintln(w, s)
 	}
 }
 
 func usage() {
-	fmt.Fprintln(os.Stderr, "usage: gouniq [-c] [input [output]]")
+	fmt.Fprintln(os.Stderr, "usage: gouniq [-c | -d | -u] [input [output]]")
 	os.Exit(1)
 }
