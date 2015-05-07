@@ -13,6 +13,8 @@ func main() {
 	r := os.Stdin
 	w := os.Stdout
 
+	c := flag.Bool("c", false, "print a number that how many times they occurred.")
+
 	flag.Parse()
 
 	if flag.NArg() > 2 {
@@ -37,6 +39,7 @@ func main() {
 
 	var prevLine string
 	var thisLine string
+	var repeats int
 
 	scanner := bufio.NewScanner(r)
 	if scanner.Scan() {
@@ -45,22 +48,35 @@ func main() {
 			panic(err)
 		}
 	}
+	if !*c {
+		fmt.Fprintln(w, prevLine)
+	}
 	for scanner.Scan() {
 		thisLine = scanner.Text()
 		if prevLine != thisLine {
-			fmt.Fprintln(w, prevLine)
+			if *c {
+				fmt.Fprintf(w, "%4d %s\n", repeats+1, prevLine)
+			}
 			prevLine = thisLine
+			if !*c {
+				fmt.Fprintln(w, prevLine)
+			}
+			repeats = 0
+		} else {
+			repeats++
 		}
 	}
 	if err := scanner.Err(); err != nil {
 		panic(err)
 	}
 	if len(prevLine) != 0 {
-		fmt.Fprintln(w, prevLine)
+		if *c {
+			fmt.Fprintf(w, "%4d %s\n", repeats+1, prevLine)
+		}
 	}
 }
 
 func usage() {
-	fmt.Fprintln(os.Stderr, "usage: gouniq [input [output]]")
+	fmt.Fprintln(os.Stderr, "usage: gouniq [-c] [input [output]]")
 	os.Exit(1)
 }
