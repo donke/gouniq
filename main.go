@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 )
 
 func main() {
@@ -16,6 +17,7 @@ func main() {
 
 	c := flag.Bool("c", false, "print a number that how many times they occurred.")
 	d := flag.Bool("d", false, "only print duplicated lines.")
+	i := flag.Bool("i", false, "case insensitive comparison.")
 	u := flag.Bool("u", false, "only print unique lines.")
 
 	flag.Parse()
@@ -68,7 +70,7 @@ func main() {
 	}
 	for scanner.Scan() {
 		thisLine = scanner.Text()
-		if prevLine != thisLine {
+		if compare(prevLine, thisLine, *i) {
 			if *c || !*d || !*u {
 				show(w, prevLine, *c, *d, *u, repeats)
 			}
@@ -89,6 +91,13 @@ func main() {
 	}
 }
 
+func compare(s1 string, s2 string, i bool) bool {
+	if i {
+		return strings.ToLower(s1) != strings.ToLower(s2)
+	}
+	return s1 != s2
+}
+
 func show(w io.Writer, s string, c bool, d bool, u bool, repeats int) {
 	if c {
 		fmt.Fprintf(w, "%4d %s\n", repeats+1, s)
@@ -99,6 +108,6 @@ func show(w io.Writer, s string, c bool, d bool, u bool, repeats int) {
 }
 
 func usage() {
-	fmt.Fprintln(os.Stderr, "usage: gouniq [-c | -d | -u] [input [output]]")
+	fmt.Fprintln(os.Stderr, "usage: gouniq [-c | -d | -u] [-i] [input [output]]")
 	os.Exit(1)
 }
