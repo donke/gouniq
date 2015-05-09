@@ -17,7 +17,9 @@ func main() {
 
 	c := flag.Bool("c", false, "print a number that how many times they occurred.")
 	d := flag.Bool("d", false, "only print duplicated lines.")
+	f := flag.Int("f", 0, "ignore the first [num] fields.")
 	i := flag.Bool("i", false, "case insensitive comparison.")
+	s := flag.Int("s", 0, "ignore the first [chars] characters")
 	u := flag.Bool("u", false, "only print unique lines.")
 
 	flag.Parse()
@@ -70,7 +72,7 @@ func main() {
 	}
 	for scanner.Scan() {
 		thisLine = scanner.Text()
-		if compare(prevLine, thisLine, *i) {
+		if compare(prevLine, thisLine, *i, *f, *s) {
 			if *c || !*d || !*u {
 				show(w, prevLine, *c, *d, *u, repeats)
 			}
@@ -91,11 +93,21 @@ func main() {
 	}
 }
 
-func compare(s1 string, s2 string, i bool) bool {
-	if i {
-		return strings.ToLower(s1) != strings.ToLower(s2)
+func skip(str string, f int, s int) string {
+	result := str
+	for i := 0; i < f; i++ {
+		result = result[strings.IndexAny(result, " \t")+1:]
 	}
-	return s1 != s2
+    return result[s:]
+}
+
+func compare(s1 string, s2 string, i bool, f int, s int) bool {
+	s1Skipped := skip(s1, f, s)
+	s2Skipped := skip(s2, f, s)
+	if i {
+		return strings.ToLower(s1Skipped) != strings.ToLower(s2Skipped)
+	}
+	return s1Skipped != s2Skipped
 }
 
 func show(w io.Writer, s string, c bool, d bool, u bool, repeats int) {
@@ -108,6 +120,7 @@ func show(w io.Writer, s string, c bool, d bool, u bool, repeats int) {
 }
 
 func usage() {
-	fmt.Fprintln(os.Stderr, "usage: gouniq [-c | -d | -u] [-i] [input [output]]")
+	message := "usage: gouniq [-c | -d | -u] [-i] [-f fields] [-s chars] [input [output]]"
+	fmt.Fprintln(os.Stderr, message)
 	os.Exit(1)
 }
