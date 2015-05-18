@@ -140,3 +140,8 @@ func (u *UniqScanner) Equal(equal EqualFunc) {
 func (u *UniqScanner) Text() string {
 	return u.text
 }
+
+// Count ...
+func (u *UniqScanner) Count() int {
+	return u.repeats
+}
