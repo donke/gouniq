@@ -73,7 +73,7 @@ func main() {
 	for scanner.Scan() {
 		thisLine = scanner.Text()
 		if compare(prevLine, thisLine, *i, *f, *s) {
-			if *c || !*d || !*u {
+			if *c || (!*d && *c) || (*d && !*u) {
 				show(w, prevLine, *c, *d, *u, repeats)
 			}
 			prevLine = thisLine
@@ -88,7 +88,7 @@ func main() {
 	if err := scanner.Err(); err != nil {
 		panic(err)
 	}
-	if *c || !*d || !*u {
+	if *c || (!*d && *c) || (*d && !*u) {
 		show(w, prevLine, *c, *d, *u, repeats)
 	}
 }
@@ -98,7 +98,7 @@ func skip(str string, f int, s int) string {
 	for i := 0; i < f; i++ {
 		result = result[strings.IndexAny(result, " \t")+1:]
 	}
-    return result[s:]
+	return result[s:]
 }
 
 func compare(s1 string, s2 string, i bool, f int, s int) bool {
