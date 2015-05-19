@@ -130,11 +130,15 @@ func TestUniqueText(t *testing.T) {
 	}
 }
 
-// func TestCount(t *testing.T) {
-// 	var s *UniqScanner
-// 	s = NewScanner(strings.NewReader("0\n0\n0\n1\n"))
-// 	s.Scan()
-// 	if s.Count() != 3 {
-// 		t.Errorf("Should count up three times. (%v)", s.Count())
-// 	}
-// }
+func TestCount(t *testing.T) {
+	var s *UniqScanner
+	s = NewScanner(strings.NewReader("0\n0\n0\n1\n"))
+	s.ScanCount()
+	if s.Count() != 3 {
+		t.Errorf("Should count up three times. (%v)", s.Count())
+	}
+	s.ScanCount()
+	if s.Count() != 1 {
+		t.Errorf("Shoudl count up one time. (%v)", s.Count())
+	}
+}
