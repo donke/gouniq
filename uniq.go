@@ -5,6 +5,9 @@ import (
 	"io"
 )
 
+// ScanFunc ...
+type ScanFunc func() bool
+
 // EqualFunc ...
 type EqualFunc func(s1 string, s2 string) bool
 
@@ -18,12 +21,13 @@ type UniqScanner struct {
 	token     string
 	repeats   int
 	counter   int
+	scan      ScanFunc
 	equal     EqualFunc
 }
 
 // NewScanner return a new UniqScanner to read from r.
 func NewScanner(r io.Reader) *UniqScanner {
-	return &UniqScanner{
+	u := &UniqScanner{
 		scanner:   bufio.NewScanner(r),
 		isInitial: true,
 		isFinal:   true,
@@ -31,10 +35,17 @@ func NewScanner(r io.Reader) *UniqScanner {
 			return s1 == s2
 		},
 	}
+	u.scan = u.ScanOriginal
+	return u
 }
 
-// Scan advances the Scanner to the next token.
+// Scan ...
 func (u *UniqScanner) Scan() bool {
+	return u.scan()
+}
+
+// ScanOriginal advances the Scanner to the next token.
+func (u *UniqScanner) ScanOriginal() bool {
 	if u.isInitial {
 		u.isInitial = false
 		if u.scanner.Scan() {
@@ -82,8 +93,10 @@ func (u *UniqScanner) ScanCount() bool {
 
 	if u.isFinal {
 		u.isFinal = false
-		u.token = u.prev
-		return true
+		if u.prev != "" {
+			u.token = u.prev
+			return true
+		}
 	}
 
 	return false
@@ -160,6 +173,11 @@ func (u *UniqScanner) ScanUnique() bool {
 	return false
 }
 
+// ScanFunc ...
+func (u *UniqScanner) ScanFunc(scan ScanFunc) {
+	u.scan = scan
+}
+
 // Equal sets the equal function for the UniqScanner. If called, it must be
 // called before Scan/ScanDuplicate/ScanUnique.
 func (u *UniqScanner) Equal(equal EqualFunc) {
@@ -175,4 +193,9 @@ func (u *UniqScanner) Text() string {
 // Count ...
 func (u *UniqScanner) Count() int {
 	return u.counter
+}
+
+// Err ...
+func (u *UniqScanner) Err() error {
+	return u.scanner.Err()
 }
