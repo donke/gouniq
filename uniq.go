@@ -9,7 +9,7 @@ import (
 type ScanFunc func() bool
 
 // EqualFunc ...
-type EqualFunc func(s1 string, s2 string) bool
+type EqualFunc func(s1, s2 string) bool
 
 // UniqScanner ...
 type UniqScanner struct {
@@ -31,7 +31,7 @@ func NewScanner(r io.Reader) *UniqScanner {
 		scanner:   bufio.NewScanner(r),
 		isInitial: true,
 		isFinal:   true,
-		equal: func(s1 string, s2 string) bool {
+		equal: func(s1, s2 string) bool {
 			return s1 == s2
 		},
 	}

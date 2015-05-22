@@ -20,11 +20,11 @@ var (
 )
 
 const (
-	Usage = "usage: gouniq [-c | -d | -u] [-i] [-f fields] [-s chars] [input [output]]"
+	help = "usage: gouniq [-c | -d | -u] [-i] [-f fields] [-s chars] [input [output]]"
 )
 
 func usage() {
-	fmt.Fprintln(os.Stderr, Usage)
+	fmt.Fprintln(os.Stderr, help)
 	os.Exit(1)
 }
 
@@ -78,7 +78,7 @@ func main() {
 	}
 
 	scanner := NewScanner(reader)
-	scanner.Equal(func(s1 string, s2 string) bool {
+	scanner.Equal(func(s1, s2 string) bool {
 		if *insensitive {
 			return strings.ToLower(skip(s1)) == strings.ToLower(skip(s2))
 		}
