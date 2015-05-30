@@ -9,22 +9,32 @@ import (
 )
 
 var (
-	count       = flag.Bool("c", false, "print a number that how many times they occured.")
-	duplicate   = flag.Bool("d", false, "only print duplicated lines.")
-	unique      = flag.Bool("u", false, "only print unique lines.")
-	insensitive = flag.Bool("i", false, "case insensitive comparison.")
-	fields      = flag.Int("f", 0, "ignore the first [num] fields.")
-	chars       = flag.Int("s", 0, "ignore the first [num] characters")
-	reader      = os.Stdin
-	writer      = os.Stdout
+	count       = flag.Bool("c", false, "")
+	duplicate   = flag.Bool("d", false, "")
+	unique      = flag.Bool("u", false, "")
+	insensitive = flag.Bool("i", false, "")
+
+	fields = flag.Int("f", 0, "")
+	chars  = flag.Int("s", 0, "")
+
+	reader = os.Stdin
+	writer = os.Stdout
 )
 
-const (
-	help = "usage: gouniq [-c | -d | -u] [-i] [-f fields] [-s chars] [input [output]]"
-)
+var usage = `usage: gouniq [options...] [input [output]]
 
-func usage() {
-	fmt.Fprintln(os.Stderr, help)
+Options:
+  -c       Print a number that how may times they occured.
+  -d       Print only duplicated lines.
+  -u       Print only unique lines.
+  -i       Case insensitive comparison on line.
+  -f num   Ignore the first num fields.
+  -s chars Ignore the first chars characters.
+`
+
+func usageAndExit() {
+	flag.Usage()
+	fmt.Fprintf(os.Stderr, "\n")
 	os.Exit(1)
 }
 
@@ -44,10 +54,13 @@ func skip(s string) string {
 }
 
 func main() {
-	flag.Parse()
+	flag.Usage = func() {
+		fmt.Fprint(os.Stderr, usage)
+	}
 
+	flag.Parse()
 	if flag.NArg() > 2 {
-		usage()
+		usageAndExit()
 	}
 
 	if flag.NArg() > 1 {
@@ -71,10 +84,10 @@ func main() {
 	}
 
 	if *count && (*duplicate || *unique) {
-		usage()
+		usageAndExit()
 	}
 	if *duplicate && *unique {
-		usage()
+		usageAndExit()
 	}
 
 	scanner := NewScanner(reader)
