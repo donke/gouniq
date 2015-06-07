@@ -6,6 +6,8 @@ import (
 	"os"
 	"strings"
 	"unicode/utf8"
+
+    "github.com/donke/gouniq"
 )
 
 var (
@@ -90,7 +92,7 @@ func main() {
 		usageAndExit()
 	}
 
-	scanner := NewScanner(reader)
+	scanner := gouniq.NewScanner(reader)
 	scanner.Equal(func(s1, s2 string) bool {
 		if *insensitive {
 			return strings.ToLower(skip(s1)) == strings.ToLower(skip(s2))
