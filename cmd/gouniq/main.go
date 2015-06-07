@@ -7,7 +7,7 @@ import (
 	"strings"
 	"unicode/utf8"
 
-    "github.com/donke/gouniq"
+	"github.com/donke/gouniq"
 )
 
 var (
