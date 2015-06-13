@@ -40,17 +40,17 @@ func usageAndExit() {
 	os.Exit(1)
 }
 
-func skip(str string) string {
+func skip(str string, fields int, chars int) string {
 	result := str
-	for i := 0; i < *f; i++ {
+	for i := 0; i < fields; i++ {
 		result = result[strings.IndexAny(result, " \t")+1:]
 	}
-	if *s != 0 {
-		if *s >= utf8.RuneCountInString(result) {
+	if chars != 0 {
+		if chars >= utf8.RuneCountInString(result) {
 			return result
 		}
 		ru := []rune(result)
-		return string(ru[*s:])
+		return string(ru[chars:])
 	}
 	return result
 }
@@ -95,9 +95,9 @@ func main() {
 	scanner := gouniq.NewScanner(reader)
 	scanner.Equal(func(s1, s2 string) bool {
 		if *i {
-			return strings.ToLower(skip(s1)) == strings.ToLower(skip(s2))
+			return strings.ToLower(skip(s1, *f, *s)) == strings.ToLower(skip(s2, *f, *s))
 		}
-		return skip(s1) == skip(s2)
+		return skip(s1, *f, *s) == skip(s2, *f, *s)
 	})
 
 	switch {
