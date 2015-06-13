@@ -11,13 +11,13 @@ import (
 )
 
 var (
-	count       = flag.Bool("c", false, "")
-	duplicate   = flag.Bool("d", false, "")
-	unique      = flag.Bool("u", false, "")
-	insensitive = flag.Bool("i", false, "")
+	c = flag.Bool("c", false, "")
+	d = flag.Bool("d", false, "")
+	u = flag.Bool("u", false, "")
+	i = flag.Bool("i", false, "")
 
-	fields = flag.Int("f", 0, "")
-	chars  = flag.Int("s", 0, "")
+	f = flag.Int("f", 0, "")
+	s = flag.Int("s", 0, "")
 
 	reader = os.Stdin
 	writer = os.Stdout
@@ -40,19 +40,19 @@ func usageAndExit() {
 	os.Exit(1)
 }
 
-func skip(s string) string {
-	r := s
-	for i := 0; i < *fields; i++ {
-		r = r[strings.IndexAny(r, " \t")+1:]
+func skip(str string) string {
+	result := str
+	for i := 0; i < *f; i++ {
+		result = result[strings.IndexAny(result, " \t")+1:]
 	}
-	if *chars != 0 {
-		if *chars >= utf8.RuneCountInString(r) {
-			return r
+	if *s != 0 {
+		if *s >= utf8.RuneCountInString(result) {
+			return result
 		}
-		ru := []rune(r)
-		return string(ru[*chars:])
+		ru := []rune(result)
+		return string(ru[*s:])
 	}
-	return r
+	return result
 }
 
 func main() {
@@ -85,34 +85,34 @@ func main() {
 		defer reader.Close()
 	}
 
-	if *count && (*duplicate || *unique) {
+	if *c && (*d || *u) {
 		usageAndExit()
 	}
-	if *duplicate && *unique {
+	if *d && *u {
 		usageAndExit()
 	}
 
 	scanner := gouniq.NewScanner(reader)
 	scanner.Equal(func(s1, s2 string) bool {
-		if *insensitive {
+		if *i {
 			return strings.ToLower(skip(s1)) == strings.ToLower(skip(s2))
 		}
 		return skip(s1) == skip(s2)
 	})
 
 	switch {
-	case *count:
+	case *c:
 		scanner.ScanFunc(scanner.ScanCount)
-	case *duplicate:
+	case *d:
 		scanner.ScanFunc(scanner.ScanDuplicate)
-	case *unique:
+	case *u:
 		scanner.ScanFunc(scanner.ScanUnique)
 	default:
 		scanner.ScanFunc(scanner.ScanOriginal)
 	}
 
 	for scanner.Scan() {
-		if *count {
+		if *c {
 			fmt.Fprintf(writer, "%4d %s\n", scanner.Count(), scanner.Text())
 		} else {
 			fmt.Fprintln(writer, scanner.Text())
