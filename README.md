@@ -3,7 +3,7 @@ uniq command clone.
 
 ## Installation
 ```
-$ go get github.com/donke/gouniq
+$ go get github.com/donke/gouniq/cmd/gouniq
 ```
 
 Or, Download from the following url. (for Windows users)
